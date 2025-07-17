@@ -15,7 +15,7 @@ import com.badlogic.gdx.InputProcessor;
 
 import com.riiablo.util.StringUtils;
 
-public class Console implements InputProcessor {
+public abstract class Console implements InputProcessor {
   private static final int INITIAL_BUFFER_CAPACITY = 128;
 
   public final PrintStream out;

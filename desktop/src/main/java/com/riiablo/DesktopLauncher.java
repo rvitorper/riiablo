@@ -15,8 +15,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -103,8 +103,6 @@ public class DesktopLauncher {
       }
     }
 
-    // TODO: fix requiring bootstrapping this logger here
-    //       loggers don't load contexts until client init (at the end of #main())
     LogManager.setLevel(DesktopLauncher.class.getName(), Level.DEBUG);
 
     final Level logLevel;
@@ -157,13 +155,11 @@ public class DesktopLauncher {
     }
     log.debug("d2Saves: {}", d2Saves);
 
-    final LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-    config.title = "Riiablo";
-    config.addIcon("ic_launcher_128.png", Files.FileType.Internal);
-    config.addIcon("ic_launcher_32.png",  Files.FileType.Internal);
-    config.addIcon("ic_launcher_16.png",  Files.FileType.Internal);
-    config.resizable = false;
-    config.allowSoftwareMode = cmd != null && cmd.hasOption("allow-software-mode");
+    final Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+    config.setTitle("Riiablo");
+    config.setWindowIcon(Files.FileType.Internal,
+        "ic_launcher_128.png", "ic_launcher_32.png", "ic_launcher_16.png");
+    config.setResizable(false);
 
     int width = 854, height = 480;
     if (cmd != null && cmd.hasOption("viewport")) {
@@ -181,16 +177,14 @@ public class DesktopLauncher {
     }
     log.debug("viewport: {}x{}", width, height);
 
-    config.width = width;
-    config.height = height;
-    config.forceExit = SystemUtils.IS_OS_MAC_OSX; /** see {@link LwjglApplicationConfiguration#forceExit */
+    config.setWindowedMode(width, height);
     final Client client = new Client(d2Home, d2Saves, height);
     if (cmd != null) {
       client.setWindowedForced(cmd.hasOption("windowed"));
       client.setDrawFPSForced(cmd.hasOption("fps"));
     }
 
-    new LwjglApplication(client, config);
+    new Lwjgl3Application(client, config);
     if (cmd != null) {
       final int gdxLogLevel;
       switch (logLevel) {
@@ -230,14 +224,14 @@ public class DesktopLauncher {
     Cvars.Client.Display.BackgroundFPSLimit.addStateListener(new CvarStateAdapter<Short>() {
       @Override
       public void onChanged(Cvar<Short> cvar, Short from, Short to) {
-        config.backgroundFPS = to;
+        config.setIdleFPS(to);
       }
     });
 
     Cvars.Client.Display.ForegroundFPSLimit.addStateListener(new CvarStateAdapter<Short>() {
       @Override
       public void onChanged(Cvar<Short> cvar, Short from, Short to) {
-        config.foregroundFPS = to;
+        config.setForegroundFPS(to);
       }
     });
   }

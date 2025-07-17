@@ -622,9 +622,6 @@ public class Client extends Game {
       if (vibration) Gdx.input.vibrate(millis);
     }
 
-    public void vibrate(long[] pattern, int repeat) {
-      if (vibration) Gdx.input.vibrate(pattern, repeat);
-    }
   }
 
   // TODO: designed for camera bounds on android for soft keyboard updates, but will change to be
